@@ -1,33 +1,46 @@
-# @nhatthm/{name}
+# Just some random matchers 
 
-<!--
-[![GitHub Releases](https://img.shields.io/github/v/release/nhatthm/{name})](https://github.com/nhatthm/{name}/releases/latest)
-[![Build Status](https://github.com/nhatthm/{name}/actions/workflows/test.yaml/badge.svg)](https://github.com/nhatthm/{name}/actions/workflows/test.yaml)
-[![codecov](https://codecov.io/gh/nhatthm/{name}/branch/master/graph/badge.svg?token=eTdAgDE2vR)](https://codecov.io/gh/nhatthm/{name})
-[![Go Report Card](https://goreportcard.com/badge/github.com/nhatthm/{name})](https://goreportcard.com/report/github.com/nhatthm/{name})
-[![GoDevDoc](https://img.shields.io/badge/dev-doc-00ADD8?logo=go)](https://pkg.go.dev/github.com/nhatthm/{name})
+[![GitHub Releases](https://img.shields.io/github/v/release/nhatthm/go-matcher)](https://github.com/nhatthm/go-matcher/releases/latest)
+[![Build Status](https://github.com/nhatthm/go-matcher/actions/workflows/test.yaml/badge.svg)](https://github.com/nhatthm/go-matcher/actions/workflows/test.yaml)
+[![codecov](https://codecov.io/gh/nhatthm/go-matcher/branch/master/graph/badge.svg?token=eTdAgDE2vR)](https://codecov.io/gh/nhatthm/go-matcher)
+[![Go Report Card](https://goreportcard.com/badge/github.com/nhatthm/go-matcher)](https://goreportcard.com/report/github.com/nhatthm/go-matcher)
+[![GoDevDoc](https://img.shields.io/badge/dev-doc-00ADD8?logo=go)](https://pkg.go.dev/github.com/nhatthm/go-matcher)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/donate/?hosted_button_id=PJZSGJN57TDJY)
--->
 
-TBD
+The package provides a matcher interface to match a given value of any types. 
 
 ## Prerequisites
 
-- `Go >= 1.15`
+- `Go >= 1.16`
 
 ## Install
 
 ```bash
-go get github.com/nhatthm/{name}
+go get github.com/nhatthm/go-matcher
 ```
 
 ## Usage
 
-TBD
+You could use it in a test or anywhere that needs a value matcher.
 
-## Examples
+```go
+package mypackage
 
-TBA
+import (
+	"testing"
+
+	"github.com/nhatthm/go-matcher"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestValue(t *testing.T) {
+	m := matcher.Exact("foobar")
+	actual := "FOOBAR"
+
+	assert.True(t, m.Match(actual), "got: %s, want: %s", actual, m.Expected())
+}
+
+```
 
 ## Donation
 

@@ -51,10 +51,3 @@ jobs:
         with:
           file: ./unit.coverprofile
           flags: unittests-${{ runner.os }}
-
-#      - name: Upload code coverage (features)
-#        if: matrix.go-version == env.GO_LATEST_VERSION
-#        uses: codecov/codecov-action@v1
-#        with:
-#          file: ./features.coverprofile
-#          flags: featurestests-${{ runner.os }}

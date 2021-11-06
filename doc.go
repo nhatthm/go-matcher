@@ -1,2 +1,2 @@
-// Package main
-package main
+// Package matcher provides value matchers.
+package matcher
