@@ -220,11 +220,16 @@ func TestRegexMatch_Expected(t *testing.T) {
 func TestLenMatcher_Match_NoError(t *testing.T) {
 	t.Parallel()
 
+	str := "foo"
+
 	testCases := []struct {
 		scenario string
 		value    interface{}
 		expected bool
 	}{
+		{
+			scenario: "nil",
+		},
 		{
 			scenario: "empty string",
 			value:    "",
@@ -235,7 +240,12 @@ func TestLenMatcher_Match_NoError(t *testing.T) {
 		},
 		{
 			scenario: "string len matched",
-			value:    "foo",
+			value:    str,
+			expected: true,
+		},
+		{
+			scenario: "string len ptr matched",
+			value:    &str,
 			expected: true,
 		},
 		{
@@ -247,8 +257,17 @@ func TestLenMatcher_Match_NoError(t *testing.T) {
 			value:    []int{1, 2},
 		},
 		{
+			scenario: "slice ptr len mismatched",
+			value:    &[]int{1, 2},
+		},
+		{
 			scenario: "slice len matched",
 			value:    []int{1, 2, 3},
+			expected: true,
+		},
+		{
+			scenario: "slice ptr len matched",
+			value:    &[]int{1, 2, 3},
 			expected: true,
 		},
 	}

@@ -89,6 +89,10 @@ type LenMatcher struct {
 
 // Match determines if the actual is expected.
 func (m LenMatcher) Match(actual interface{}) (_ bool, err error) {
+	if actual == nil {
+		return false, nil
+	}
+
 	defer func() {
 		if r := recover(); r != nil {
 			err = errors.New(recovered(r)) // nolint: goerr113
@@ -96,6 +100,10 @@ func (m LenMatcher) Match(actual interface{}) (_ bool, err error) {
 	}()
 
 	val := reflect.ValueOf(actual)
+
+	if val.Type().Kind() == reflect.Ptr {
+		return m.Match(val.Elem().Interface())
+	}
 
 	return val.Len() == m.expected, nil
 }
