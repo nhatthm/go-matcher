@@ -217,6 +217,78 @@ func TestRegexMatch_Expected(t *testing.T) {
 	assert.Equal(t, expected, m.Expected())
 }
 
+func TestLenMatcher_Match_NoError(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		scenario string
+		value    interface{}
+		expected bool
+	}{
+		{
+			scenario: "empty string",
+			value:    "",
+		},
+		{
+			scenario: "string len mismatched",
+			value:    "foob",
+		},
+		{
+			scenario: "string len matched",
+			value:    "foo",
+			expected: true,
+		},
+		{
+			scenario: "empty slice",
+			value:    []int{},
+		},
+		{
+			scenario: "slice len mismatched",
+			value:    []int{1, 2},
+		},
+		{
+			scenario: "slice len matched",
+			value:    []int{1, 2, 3},
+			expected: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.scenario, func(t *testing.T) {
+			t.Parallel()
+
+			m := matcher.Len(3)
+			actual, err := m.Match(tc.value)
+
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestLenMatcher_Match_Error(t *testing.T) {
+	t.Parallel()
+
+	m := matcher.Len(3)
+	actual, err := m.Match(42)
+
+	expected := `reflect: call of reflect.Value.Len on int Value`
+
+	assert.False(t, actual)
+	assert.Error(t, err)
+	assert.EqualError(t, err, expected)
+}
+
+func TestLenMatcher_Expected(t *testing.T) {
+	t.Parallel()
+
+	m := matcher.Len(5)
+	expected := "len is 5"
+
+	assert.Equal(t, expected, m.Expected())
+}
+
 func TestEmptyMatcher_Match(t *testing.T) {
 	t.Parallel()
 

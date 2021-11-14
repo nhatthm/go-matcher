@@ -1,7 +1,9 @@
 package matcher
 
 import (
+	"errors"
 	"fmt"
+	"reflect"
 	"regexp"
 
 	"github.com/stretchr/testify/assert"
@@ -76,6 +78,31 @@ func (m RegexMatcher) Match(actual interface{}) (bool, error) {
 	}
 
 	return false, nil
+}
+
+var _ Matcher = (*LenMatcher)(nil)
+
+// LenMatcher matches by the length of the value.
+type LenMatcher struct {
+	expected int
+}
+
+// Match determines if the actual is expected.
+func (m LenMatcher) Match(actual interface{}) (_ bool, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = errors.New(recovered(r)) // nolint: goerr113
+		}
+	}()
+
+	val := reflect.ValueOf(actual)
+
+	return val.Len() == m.expected, nil
+}
+
+// Expected returns the expectation.
+func (m LenMatcher) Expected() string {
+	return fmt.Sprintf("len is %d", m.expected)
 }
 
 var _ Matcher = (*EmptyMatcher)(nil)
@@ -156,6 +183,11 @@ func RegexPattern(pattern string) RegexMatcher {
 // Regex matches two strings by using regex.
 func Regex(regexp *regexp.Regexp) RegexMatcher {
 	return RegexMatcher{regexp: regexp}
+}
+
+// Len matches by the length of the value.
+func Len(expected int) LenMatcher {
+	return LenMatcher{expected: expected}
 }
 
 // IsEmpty checks whether the value is empty.
