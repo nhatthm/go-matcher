@@ -217,6 +217,88 @@ func TestRegexMatch_Expected(t *testing.T) {
 	assert.Equal(t, expected, m.Expected())
 }
 
+func TestEmptyMatcher_Match(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		scenario string
+		value    string
+		expected bool
+	}{
+		{
+			scenario: "empty",
+			expected: true,
+		},
+		{
+			scenario: "not empty",
+			value:    "foobar",
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.scenario, func(t *testing.T) {
+			t.Parallel()
+
+			m := matcher.IsEmpty()
+			actual, err := m.Match(tc.value)
+
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestEmptyMatcher_Expected(t *testing.T) {
+	t.Parallel()
+
+	m := matcher.IsEmpty()
+	expected := "is empty"
+
+	assert.Equal(t, expected, m.Expected())
+}
+
+func TestNotEmptyMatcher_Match(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		scenario string
+		value    string
+		expected bool
+	}{
+		{
+			scenario: "empty",
+			expected: true,
+		},
+		{
+			scenario: "not empty",
+			value:    "foobar",
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.scenario, func(t *testing.T) {
+			t.Parallel()
+
+			m := matcher.IsNotEmpty()
+			actual, err := m.Match(tc.value)
+
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
+func TestNotEmptyMatcher_Expected(t *testing.T) {
+	t.Parallel()
+
+	m := matcher.IsNotEmpty()
+	expected := "is not empty"
+
+	assert.Equal(t, expected, m.Expected())
+}
+
 func TestRegexMatch_Match(t *testing.T) {
 	t.Parallel()
 

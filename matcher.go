@@ -78,6 +78,36 @@ func (m RegexMatcher) Match(actual interface{}) (bool, error) {
 	return false, nil
 }
 
+var _ Matcher = (*EmptyMatcher)(nil)
+
+// EmptyMatcher checks whether the value is empty.
+type EmptyMatcher struct{}
+
+// Match determines if the actual is expected.
+func (EmptyMatcher) Match(actual interface{}) (bool, error) {
+	return isEmpty(actual), nil
+}
+
+// Expected returns the expectation.
+func (EmptyMatcher) Expected() string {
+	return "is empty"
+}
+
+var _ Matcher = (*NotEmptyMatcher)(nil)
+
+// NotEmptyMatcher checks whether the value is not empty.
+type NotEmptyMatcher struct{}
+
+// Match determines if the actual is expected.
+func (NotEmptyMatcher) Match(actual interface{}) (bool, error) {
+	return isEmpty(actual), nil
+}
+
+// Expected returns the expectation.
+func (NotEmptyMatcher) Expected() string {
+	return "is not empty"
+}
+
 var _ Matcher = (*Callback)(nil)
 
 // Callback matches by calling a function.
@@ -128,8 +158,17 @@ func Regex(regexp *regexp.Regexp) RegexMatcher {
 	return RegexMatcher{regexp: regexp}
 }
 
-// Match returns a matcher according to its type.
-func Match(v interface{}) Matcher {
+// IsEmpty checks whether the value is empty.
+func IsEmpty() EmptyMatcher {
+	return EmptyMatcher{}
+}
+
+// IsNotEmpty checks whether the value is not empty.
+func IsNotEmpty() NotEmptyMatcher {
+	return NotEmptyMatcher{}
+}
+
+func match(v interface{}) Matcher {
 	switch val := v.(type) {
 	case Matcher:
 		return val
@@ -145,4 +184,9 @@ func Match(v interface{}) Matcher {
 	}
 
 	return Exact(v)
+}
+
+// Match returns a matcher according to its type.
+func Match(v interface{}) Matcher {
+	return match(v)
 }

@@ -1,6 +1,7 @@
 package matcher
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -91,6 +92,113 @@ func Test_jsonVal(t *testing.T) {
 			} else {
 				assert.EqualError(t, err, tc.expectedError)
 			}
+		})
+	}
+}
+
+func TestIsEmpty(t *testing.T) {
+	t.Parallel()
+
+	errCh := make(chan error, 1)
+	errCh <- errors.New("error")
+
+	nonEmptyStr := "foo"
+	emptyStr := ""
+
+	testCases := []struct {
+		scenario string
+		value    interface{}
+		expected bool
+	}{
+		{
+			scenario: "nil",
+			expected: true,
+		},
+		{
+			scenario: "empty array",
+			value:    [0]int{},
+			expected: true,
+		},
+		{
+			scenario: "not empty array",
+			value:    [1]int{},
+		},
+		{
+			scenario: "empty slice",
+			value:    []int{},
+			expected: true,
+		},
+		{
+			scenario: "not empty slice",
+			value:    []int{1},
+		},
+		{
+			scenario: "empty chan",
+			value:    make(chan error, 1),
+			expected: true,
+		},
+		{
+			scenario: "not empty chan",
+			value:    errCh,
+		},
+		{
+			scenario: "empty map",
+			value:    map[string]int{},
+			expected: true,
+		},
+		{
+			scenario: "not empty map",
+			value:    map[string]int{"id": 1},
+		},
+		{
+			scenario: "empty string",
+			value:    "",
+			expected: true,
+		},
+		{
+			scenario: "nil interface",
+			value:    (*error)(nil),
+			expected: true,
+		},
+		{
+			scenario: "empty string ptr",
+			value:    &emptyStr,
+			expected: true,
+		},
+		{
+			scenario: "not empty string ptr",
+			value:    &nonEmptyStr,
+		},
+		{
+			scenario: "not empty string",
+			value:    "foobar",
+		},
+		{
+			scenario: "empty int",
+			value:    0,
+			expected: true,
+		},
+		{
+			scenario: "not empty int",
+			value:    42,
+		},
+		{
+			scenario: "false",
+			value:    false,
+			expected: true,
+		},
+		{
+			scenario: "true",
+			value:    true,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.scenario, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.expected, isEmpty(tc.value))
 		})
 	}
 }
