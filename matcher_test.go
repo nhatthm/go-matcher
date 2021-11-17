@@ -359,11 +359,11 @@ func TestNotEmptyMatcher_Match(t *testing.T) {
 	}{
 		{
 			scenario: "empty",
-			expected: true,
 		},
 		{
 			scenario: "not empty",
 			value:    "foobar",
+			expected: true,
 		},
 	}
 

@@ -135,7 +135,7 @@ type NotEmptyMatcher struct{}
 
 // Match determines if the actual is expected.
 func (NotEmptyMatcher) Match(actual interface{}) (bool, error) {
-	return isEmpty(actual), nil
+	return !isEmpty(actual), nil
 }
 
 // Expected returns the expectation.
