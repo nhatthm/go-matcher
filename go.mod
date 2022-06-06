@@ -3,7 +3,7 @@ module github.com/nhatthm/go-matcher
 go 1.17
 
 require (
-	github.com/stretchr/testify v1.7.1
+	github.com/stretchr/testify v1.7.2
 	github.com/swaggest/assertjson v1.7.0
 )
 
@@ -22,5 +22,5 @@ require (
 	golang.org/x/net v0.0.0-20220516155154-20f960328961 // indirect
 	golang.org/x/sys v0.0.0-20220513210249-45d2b4557a2a // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
