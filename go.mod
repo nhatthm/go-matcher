@@ -3,7 +3,7 @@ module github.com/nhatthm/go-matcher
 go 1.17
 
 require (
-	github.com/stretchr/testify v1.7.5
+	github.com/stretchr/testify v1.8.0
 	github.com/swaggest/assertjson v1.7.0
 )
 
