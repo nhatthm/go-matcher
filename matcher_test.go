@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/nhatthm/go-matcher"
+	"go.nhat.io/matcher/v2"
 )
 
 func TestExactMatch_Expected(t *testing.T) {
