@@ -1,4 +1,4 @@
-module github.com/nhatthm/go-matcher
+module go.nhat.io/matcher/v2
 
 go 1.17
 
