@@ -7,15 +7,59 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"go.nhat.io/matcher/v2"
+	"go.nhat.io/matcher/v3"
 )
 
-func TestExactMatch_Expected(t *testing.T) {
+func TestAny(t *testing.T) {
+	t.Parallel()
+
+	t.Run("expected", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Equal(t, "is anything", matcher.Any.Expected())
+	})
+
+	testCases := []struct {
+		scenario string
+		actual   any
+	}{
+		{
+			scenario: "int",
+			actual:   42,
+		},
+		{
+			scenario: "string",
+			actual:   "foobar",
+		},
+		{
+			scenario: "struct",
+			actual:   struct{}{},
+		},
+		{
+			scenario: "nil",
+			actual:   nil,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.scenario, func(t *testing.T) {
+			t.Parallel()
+
+			matched, err := matcher.Any.Match(tc.actual)
+
+			assert.True(t, matched)
+			assert.NoError(t, err)
+		})
+	}
+}
+
+func TestEqual_Expected(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
 		scenario string
-		input    interface{}
+		input    any
 		expected string
 	}{
 		{
@@ -35,14 +79,14 @@ func TestExactMatch_Expected(t *testing.T) {
 		t.Run(tc.scenario, func(t *testing.T) {
 			t.Parallel()
 
-			m := matcher.Exact(tc.input)
+			m := matcher.Equal(tc.input)
 
 			assert.Equal(t, tc.expected, m.Expected())
 		})
 	}
 }
 
-func TestExactMatch_Match(t *testing.T) {
+func TestEqual_Match(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
@@ -66,7 +110,7 @@ func TestExactMatch_Match(t *testing.T) {
 		t.Run(tc.scenario, func(t *testing.T) {
 			t.Parallel()
 
-			m := matcher.Exact("value")
+			m := matcher.Equal("value")
 			result, err := m.Match(tc.actual)
 
 			assert.Equal(t, tc.expected, result)
@@ -75,27 +119,27 @@ func TestExactMatch_Match(t *testing.T) {
 	}
 }
 
-func TestExactfMatch_Match(t *testing.T) {
+func TestEqualf_Match(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
 		scenario string
 		format   string
-		args     []interface{}
+		args     []any
 		actual   string
 		expected bool
 	}{
 		{
 			scenario: "match",
 			format:   "Bearer %s",
-			args:     []interface{}{"token"},
+			args:     []any{"token"},
 			actual:   "Bearer token",
 			expected: true,
 		},
 		{
 			scenario: "no match",
 			format:   "Bearer %s",
-			args:     []interface{}{"token"},
+			args:     []any{"token"},
 			actual:   "Bearer unknown",
 		},
 	}
@@ -105,7 +149,7 @@ func TestExactfMatch_Match(t *testing.T) {
 		t.Run(tc.scenario, func(t *testing.T) {
 			t.Parallel()
 
-			m := matcher.Exactf(tc.format, tc.args...)
+			m := matcher.Equalf(tc.format, tc.args...)
 			result, err := m.Match(tc.actual)
 
 			assert.Equal(t, tc.expected, result)
@@ -114,7 +158,7 @@ func TestExactfMatch_Match(t *testing.T) {
 	}
 }
 
-func TestJSONMatch_Panic(t *testing.T) {
+func TestJSON_Panic(t *testing.T) {
 	t.Parallel()
 
 	assert.Panics(t, func() {
@@ -122,12 +166,12 @@ func TestJSONMatch_Panic(t *testing.T) {
 	})
 }
 
-func TestJSONMatch_Expected(t *testing.T) {
+func TestJSON_Expected(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
 		scenario string
-		input    interface{}
+		input    any
 		expected string
 	}{
 		{
@@ -154,7 +198,7 @@ func TestJSONMatch_Expected(t *testing.T) {
 	}
 }
 
-func TestJSONMatch_Match(t *testing.T) {
+func TestJSON_Match(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
@@ -198,7 +242,7 @@ func TestJSONMatch_Match(t *testing.T) {
 	}
 }
 
-func TestJSONMatch_Match_Error(t *testing.T) {
+func TestJSON_Match_Error(t *testing.T) {
 	t.Parallel()
 
 	m := matcher.JSON(`{}`)
@@ -208,7 +252,7 @@ func TestJSONMatch_Match_Error(t *testing.T) {
 	assert.EqualError(t, err, `json: unsupported type: chan error`)
 }
 
-func TestRegexMatch_Expected(t *testing.T) {
+func TestRegex_Expected(t *testing.T) {
 	t.Parallel()
 
 	m := matcher.Regex(regexp.MustCompile(".*"))
@@ -217,14 +261,14 @@ func TestRegexMatch_Expected(t *testing.T) {
 	assert.Equal(t, expected, m.Expected())
 }
 
-func TestLenMatcher_Match_NoError(t *testing.T) {
+func TestLen_Match_NoError(t *testing.T) {
 	t.Parallel()
 
 	str := "foo"
 
 	testCases := []struct {
 		scenario string
-		value    interface{}
+		value    any
 		expected bool
 	}{
 		{
@@ -286,7 +330,7 @@ func TestLenMatcher_Match_NoError(t *testing.T) {
 	}
 }
 
-func TestLenMatcher_Match_Error(t *testing.T) {
+func TestLen_Match_Error(t *testing.T) {
 	t.Parallel()
 
 	m := matcher.Len(3)
@@ -299,7 +343,7 @@ func TestLenMatcher_Match_Error(t *testing.T) {
 	assert.EqualError(t, err, expected)
 }
 
-func TestLenMatcher_Expected(t *testing.T) {
+func TestLen_Expected(t *testing.T) {
 	t.Parallel()
 
 	m := matcher.Len(5)
@@ -308,7 +352,7 @@ func TestLenMatcher_Expected(t *testing.T) {
 	assert.Equal(t, expected, m.Expected())
 }
 
-func TestEmptyMatcher_Match(t *testing.T) {
+func TestEmpty_Match(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
@@ -340,7 +384,7 @@ func TestEmptyMatcher_Match(t *testing.T) {
 	}
 }
 
-func TestEmptyMatcher_Expected(t *testing.T) {
+func TestEmpty_Expected(t *testing.T) {
 	t.Parallel()
 
 	m := matcher.IsEmpty()
@@ -349,7 +393,7 @@ func TestEmptyMatcher_Expected(t *testing.T) {
 	assert.Equal(t, expected, m.Expected())
 }
 
-func TestNotEmptyMatcher_Match(t *testing.T) {
+func TestNotEmpty_Match(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
@@ -381,7 +425,7 @@ func TestNotEmptyMatcher_Match(t *testing.T) {
 	}
 }
 
-func TestNotEmptyMatcher_Expected(t *testing.T) {
+func TestNotEmpty_Expected(t *testing.T) {
 	t.Parallel()
 
 	m := matcher.IsNotEmpty()
@@ -390,13 +434,13 @@ func TestNotEmptyMatcher_Expected(t *testing.T) {
 	assert.Equal(t, expected, m.Expected())
 }
 
-func TestRegexMatch_Match(t *testing.T) {
+func TestRegex_Match(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
 		scenario string
-		matcher  matcher.RegexMatcher
-		actual   interface{}
+		matcher  matcher.Matcher
+		actual   any
 		expected bool
 	}{
 		{
@@ -407,18 +451,18 @@ func TestRegexMatch_Match(t *testing.T) {
 		},
 		{
 			scenario: "match with regexp pattern",
-			matcher:  matcher.RegexPattern(".*"),
+			matcher:  matcher.Regex(".*"),
 			actual:   `hello`,
 			expected: true,
 		},
 		{
 			scenario: "no match",
-			matcher:  matcher.RegexPattern("^[0-9]+$"),
+			matcher:  matcher.Regex("^[0-9]+$"),
 			actual:   "mismatch",
 		},
 		{
 			scenario: "not a string",
-			matcher:  matcher.Regex(nil),
+			matcher:  matcher.Regex(""),
 			actual:   nil,
 		},
 	}
@@ -440,49 +484,56 @@ func TestCallback(t *testing.T) {
 	t.Parallel()
 
 	m := matcher.Callback(func() matcher.Matcher {
-		return matcher.Exact("expected")
+		return matcher.Equal("expected")
 	})
 
-	assert.Equal(t, matcher.Exact("expected"), m.Matcher())
+	assert.Equal(t, matcher.Equal("expected"), m.Matcher())
 }
 
 func TestMatch(t *testing.T) {
 	t.Parallel()
 
+	reg := regexp.MustCompile(".*")
+
 	testCases := []struct {
 		scenario string
-		value    interface{}
+		value    any
 		expected matcher.Matcher
 	}{
 		{
 			scenario: "matcher",
-			value:    matcher.Exact("expected"),
-			expected: matcher.Exact("expected"),
+			value:    matcher.Equal("expected"),
+			expected: matcher.Equal("expected"),
 		},
 		{
 			scenario: "[]byte",
 			value:    []byte("expected"),
-			expected: matcher.Exact([]byte("expected")),
+			expected: matcher.Equal([]byte("expected")),
 		},
 		{
 			scenario: "string",
 			value:    "expected",
-			expected: matcher.Exact("expected"),
+			expected: matcher.Equal("expected"),
 		},
 		{
 			scenario: "int",
 			value:    42,
-			expected: matcher.Exact(42),
+			expected: matcher.Equal(42),
+		},
+		{
+			scenario: "*regexp",
+			value:    reg,
+			expected: matcher.Regex(".*"),
 		},
 		{
 			scenario: "regexp",
-			value:    regexp.MustCompile(".*"),
-			expected: matcher.RegexPattern(".*"),
+			value:    *reg,
+			expected: matcher.Regex(".*"),
 		},
 		{
 			scenario: "fmt.Stringer",
 			value:    time.UTC,
-			expected: matcher.Exact("UTC"),
+			expected: matcher.Equal("UTC"),
 		},
 	}
 
@@ -500,7 +551,7 @@ func TestMatch_Callback(t *testing.T) {
 	t.Parallel()
 
 	m := matcher.Match(func() matcher.Matcher {
-		return matcher.Exact("expected")
+		return matcher.Equal("expected")
 	})
 
 	assert.Equal(t, "expected", m.Expected())
