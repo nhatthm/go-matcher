@@ -34,10 +34,13 @@ import (
 )
 
 func TestValue(t *testing.T) {
-	m := matcher.Exact("foobar")
+	m := matcher.Equal("foobar")
 	actual := "FOOBAR"
 
-	assert.True(t, m.Match(actual), "got: %s, want: %s", actual, m.Expected())
+	result, err := m.Match(actual)
+
+	assert.True(t, result, "got: %s, want: %s", actual, m.Expected())
+	assert.NoError(t, err)
 }
 
 ```
