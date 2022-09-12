@@ -2,6 +2,7 @@ package matcher
 
 import (
 	"errors"
+	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +15,7 @@ func Test_strVal(t *testing.T) {
 
 	testCases := []struct {
 		scenario string
-		input    interface{}
+		input    any
 		expected *string
 	}{
 		{
@@ -52,7 +53,7 @@ func Test_jsonVal(t *testing.T) {
 
 	testCases := []struct {
 		scenario       string
-		input          interface{}
+		input          any
 		expectedResult []byte
 		expectedError  string
 	}{
@@ -96,6 +97,50 @@ func Test_jsonVal(t *testing.T) {
 	}
 }
 
+func Test_regexpVal(t *testing.T) {
+	t.Parallel()
+
+	expected := regexp.MustCompile(".*")
+
+	testCases := []struct {
+		scenario string
+		input    any
+		expected *regexp.Regexp
+	}{
+		{
+			scenario: "chan",
+			input:    make(chan struct{}),
+			expected: nil,
+		},
+		{
+			scenario: "string",
+			input:    ".*",
+			expected: expected,
+		},
+		{
+			scenario: "regexp ptr",
+			input:    expected,
+			expected: expected,
+		},
+		{
+			scenario: "regexp ptr",
+			input:    *expected,
+			expected: expected,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.scenario, func(t *testing.T) {
+			t.Parallel()
+
+			result := regexpVal(tc.input)
+
+			assert.Equal(t, tc.expected, result)
+		})
+	}
+}
+
 func TestIsEmpty(t *testing.T) {
 	t.Parallel()
 
@@ -107,7 +152,7 @@ func TestIsEmpty(t *testing.T) {
 
 	testCases := []struct {
 		scenario string
-		value    interface{}
+		value    any
 		expected bool
 	}{
 		{

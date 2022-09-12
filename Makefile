@@ -1,6 +1,8 @@
+MODULE_NAME = matcher
+
 VENDOR_DIR = vendor
 
-GOLANGCI_LINT_VERSION ?= v1.48.0
+GOLANGCI_LINT_VERSION ?= v1.49.0
 
 GO ?= go
 GOLANGCI_LINT ?= $(shell go env GOPATH)/bin/golangci-lint-$(GOLANGCI_LINT_VERSION)
@@ -29,8 +31,9 @@ test-unit:
 #	@echo ">> integration test"
 #	@$(GO) test ./features/... -gcflags=-l -coverprofile=features.coverprofile -coverpkg ./... -race --godog
 
-.PHONY: golangci-lint-version
-golangci-lint-version:
+.PHONY: gha-vars
+gha-vars:
+	@echo "::set-output name=MODULE_NAME::$(MODULE_NAME)"
 	@echo "::set-output name=GOLANGCI_LINT_VERSION::$(GOLANGCI_LINT_VERSION)"
 
 $(GOLANGCI_LINT):

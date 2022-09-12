@@ -10,21 +10,26 @@ import (
 	"github.com/swaggest/assertjson"
 )
 
+// Any returns a matcher that matches any value.
+var Any = Func("is anything", func(actual any) (bool, error) {
+	return true, nil
+})
+
 // Matcher determines if the actual matches the expectation.
 type Matcher interface {
-	Match(actual interface{}) (bool, error)
+	Match(actual any) (bool, error)
 	Expected() string
 }
 
-var _ Matcher = (*ExactMatcher)(nil)
+var _ Matcher = (*equalMatcher)(nil)
 
-// ExactMatcher matches by exact string.
-type ExactMatcher struct {
-	expected interface{}
+// equalMatcher matches by equal string.
+type equalMatcher struct {
+	expected any
 }
 
 // Expected returns the expectation.
-func (m ExactMatcher) Expected() string {
+func (m equalMatcher) Expected() string {
 	if v := strVal(m.expected); v != nil {
 		return *v
 	}
@@ -33,24 +38,24 @@ func (m ExactMatcher) Expected() string {
 }
 
 // Match determines if the actual is expected.
-func (m ExactMatcher) Match(actual interface{}) (bool, error) {
+func (m equalMatcher) Match(actual any) (bool, error) {
 	return assert.ObjectsAreEqual(m.expected, actual), nil
 }
 
-var _ Matcher = (*JSONMatcher)(nil)
+var _ Matcher = (*jsonMatcher)(nil)
 
-// JSONMatcher matches by json with <ignore-diff> support.
-type JSONMatcher struct {
+// jsonMatcher matches by json with <ignore-diff> support.
+type jsonMatcher struct {
 	expected string
 }
 
 // Expected returns the expectation.
-func (m JSONMatcher) Expected() string {
+func (m jsonMatcher) Expected() string {
 	return m.expected
 }
 
 // Match determines if the actual is expected.
-func (m JSONMatcher) Match(actual interface{}) (bool, error) {
+func (m jsonMatcher) Match(actual any) (bool, error) {
 	actualBytes, err := jsonVal(actual)
 	if err != nil {
 		return false, err
@@ -59,20 +64,20 @@ func (m JSONMatcher) Match(actual interface{}) (bool, error) {
 	return assertjson.FailNotEqual([]byte(m.expected), actualBytes) == nil, nil
 }
 
-var _ Matcher = (*RegexMatcher)(nil)
+var _ Matcher = (*regexMatcher)(nil)
 
-// RegexMatcher matches by regex.
-type RegexMatcher struct {
+// regexMatcher matches by regex.
+type regexMatcher struct {
 	regexp *regexp.Regexp
 }
 
 // Expected returns the expectation.
-func (m RegexMatcher) Expected() string {
+func (m regexMatcher) Expected() string {
 	return m.regexp.String()
 }
 
 // Match determines if the actual is expected.
-func (m RegexMatcher) Match(actual interface{}) (bool, error) {
+func (m regexMatcher) Match(actual any) (bool, error) {
 	if v := strVal(actual); v != nil {
 		return m.regexp.MatchString(*v), nil
 	}
@@ -80,15 +85,15 @@ func (m RegexMatcher) Match(actual interface{}) (bool, error) {
 	return false, nil
 }
 
-var _ Matcher = (*LenMatcher)(nil)
+var _ Matcher = (*lenMatcher)(nil)
 
-// LenMatcher matches by the length of the value.
-type LenMatcher struct {
+// lenMatcher matches by the length of the value.
+type lenMatcher struct {
 	expected int
 }
 
 // Match determines if the actual is expected.
-func (m LenMatcher) Match(actual interface{}) (_ bool, err error) {
+func (m lenMatcher) Match(actual any) (_ bool, err error) {
 	if actual == nil {
 		return false, nil
 	}
@@ -102,45 +107,63 @@ func (m LenMatcher) Match(actual interface{}) (_ bool, err error) {
 	val := reflect.ValueOf(actual)
 
 	if val.Type().Kind() == reflect.Ptr {
-		return m.Match(val.Elem().Interface())
+		val = val.Elem()
 	}
 
 	return val.Len() == m.expected, nil
 }
 
 // Expected returns the expectation.
-func (m LenMatcher) Expected() string {
+func (m lenMatcher) Expected() string {
 	return fmt.Sprintf("len is %d", m.expected)
 }
 
-var _ Matcher = (*EmptyMatcher)(nil)
+var _ Matcher = (*emptyMatcher)(nil)
 
-// EmptyMatcher checks whether the value is empty.
-type EmptyMatcher struct{}
+// emptyMatcher checks whether the value is empty.
+type emptyMatcher struct{}
 
 // Match determines if the actual is expected.
-func (EmptyMatcher) Match(actual interface{}) (bool, error) {
+func (emptyMatcher) Match(actual any) (bool, error) {
 	return isEmpty(actual), nil
 }
 
 // Expected returns the expectation.
-func (EmptyMatcher) Expected() string {
+func (emptyMatcher) Expected() string {
 	return "is empty"
 }
 
-var _ Matcher = (*NotEmptyMatcher)(nil)
+var _ Matcher = (*notEmptyMatcher)(nil)
 
-// NotEmptyMatcher checks whether the value is not empty.
-type NotEmptyMatcher struct{}
+// notEmptyMatcher checks whether the value is not empty.
+type notEmptyMatcher struct{}
 
 // Match determines if the actual is expected.
-func (NotEmptyMatcher) Match(actual interface{}) (bool, error) {
+func (notEmptyMatcher) Match(actual any) (bool, error) {
 	return !isEmpty(actual), nil
 }
 
 // Expected returns the expectation.
-func (NotEmptyMatcher) Expected() string {
+func (notEmptyMatcher) Expected() string {
 	return "is not empty"
+}
+
+var _ Matcher = (*funcMatcher)(nil)
+
+// funcMatcher checks by calling a function.
+type funcMatcher struct {
+	expected string
+	match    func(actual any) (bool, error)
+}
+
+// Match determines if the actual is expected.
+func (f *funcMatcher) Match(actual any) (bool, error) {
+	return f.match(actual)
+}
+
+// Expected returns the expectation.
+func (f *funcMatcher) Expected() string {
+	return f.expected
 }
 
 var _ Matcher = (*Callback)(nil)
@@ -154,7 +177,7 @@ func (m Callback) Expected() string {
 }
 
 // Match determines if the actual is expected.
-func (m Callback) Match(actual interface{}) (bool, error) {
+func (m Callback) Match(actual any) (bool, error) {
 	return m().Match(actual)
 }
 
@@ -163,52 +186,53 @@ func (m Callback) Matcher() Matcher {
 	return m()
 }
 
-// Exact matches two objects by their exact values.
-func Exact(expected interface{}) ExactMatcher {
-	return ExactMatcher{expected: expected}
+// Equal matches two objects.
+func Equal(expected any) Matcher {
+	return equalMatcher{expected: expected}
 }
 
-// Exactf matches two strings by the formatted expectation.
-func Exactf(expected string, args ...interface{}) ExactMatcher {
-	return ExactMatcher{expected: fmt.Sprintf(expected, args...)}
+// Equalf matches two strings by the formatted expectation.
+func Equalf(expected string, args ...any) Matcher {
+	return equalMatcher{expected: fmt.Sprintf(expected, args...)}
 }
 
 // JSON matches two json strings with <ignore-diff> support.
-func JSON(expected interface{}) JSONMatcher {
+func JSON(expected any) Matcher {
 	ex, err := jsonVal(expected)
 	if err != nil {
 		panic(err)
 	}
 
-	return JSONMatcher{expected: string(ex)}
-}
-
-// RegexPattern matches two strings by using regex.
-func RegexPattern(pattern string) RegexMatcher {
-	return RegexMatcher{regexp: regexp.MustCompile(pattern)}
+	return jsonMatcher{expected: string(ex)}
 }
 
 // Regex matches two strings by using regex.
-func Regex(regexp *regexp.Regexp) RegexMatcher {
-	return RegexMatcher{regexp: regexp}
+func Regex[T ~string | *regexp.Regexp | regexp.Regexp](regexp T) Matcher {
+	return regexMatcher{regexp: regexpVal(regexp)}
 }
 
 // Len matches by the length of the value.
-func Len(expected int) LenMatcher {
-	return LenMatcher{expected: expected}
+func Len[T ~int | ~int8 | ~int16 | ~int32 | ~int64 | ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64](expected T) Matcher {
+	return lenMatcher{expected: int(expected)}
 }
 
 // IsEmpty checks whether the value is empty.
-func IsEmpty() EmptyMatcher {
-	return EmptyMatcher{}
+func IsEmpty() Matcher {
+	return emptyMatcher{}
 }
 
 // IsNotEmpty checks whether the value is not empty.
-func IsNotEmpty() NotEmptyMatcher {
-	return NotEmptyMatcher{}
+func IsNotEmpty() Matcher {
+	return notEmptyMatcher{}
 }
 
-func match(v interface{}) Matcher {
+// Func matches by calling a function.
+func Func(expected string, match func(actual any) (bool, error)) Matcher {
+	return &funcMatcher{expected: expected, match: match}
+}
+
+// Match returns a matcher according to its type.
+func Match(v any) Matcher {
 	switch val := v.(type) {
 	case Matcher:
 		return val
@@ -216,17 +240,12 @@ func match(v interface{}) Matcher {
 	case func() Matcher:
 		return Callback(val)
 
-	case *regexp.Regexp:
-		return Regex(val)
+	case regexp.Regexp, *regexp.Regexp:
+		return Regex(regexpVal(val))
 
 	case fmt.Stringer:
-		return Exact(val.String())
+		return Equal(val.String())
 	}
 
-	return Exact(v)
-}
-
-// Match returns a matcher according to its type.
-func Match(v interface{}) Matcher {
-	return match(v)
+	return Equal(v)
 }
