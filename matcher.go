@@ -85,6 +85,21 @@ func (m regexMatcher) Match(actual any) (bool, error) {
 	return false, nil
 }
 
+var _ Matcher = (*typeMatcher)(nil)
+
+// typeMatcher is a .typeMatcher.
+type typeMatcher struct {
+	typeOf reflect.Type
+}
+
+func (t typeMatcher) Match(actual any) (bool, error) {
+	return reflect.DeepEqual(t.typeOf, reflect.TypeOf(actual)), nil
+}
+
+func (t typeMatcher) Expected() string {
+	return fmt.Sprintf("type is %s", t.typeOf.String())
+}
+
 var _ Matcher = (*lenMatcher)(nil)
 
 // lenMatcher matches by the length of the value.
@@ -209,6 +224,18 @@ func JSON(expected any) Matcher {
 // Regex matches two strings by using regex.
 func Regex[T ~string | *regexp.Regexp | regexp.Regexp](regexp T) Matcher {
 	return regexMatcher{regexp: regexpVal(regexp)}
+}
+
+// IsType matches two types.
+func IsType[T any]() Matcher {
+	var t *T
+
+	return typeMatcher{typeOf: reflect.TypeOf(t).Elem()}
+}
+
+// SameTypeAs matches two types.
+func SameTypeAs(expected any) Matcher {
+	return typeMatcher{typeOf: reflect.TypeOf(expected)}
 }
 
 // Len matches by the length of the value.

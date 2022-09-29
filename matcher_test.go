@@ -261,6 +261,100 @@ func TestRegex_Expected(t *testing.T) {
 	assert.Equal(t, expected, m.Expected())
 }
 
+func TestIsType_Match(t *testing.T) {
+	t.Parallel()
+
+	t.Run("bool", func(t *testing.T) {
+		t.Parallel()
+
+		m := matcher.IsType[bool]()
+
+		actual, err := m.Match(true)
+
+		assert.True(t, actual)
+		assert.NoError(t, err)
+
+		actual, err = m.Match(1)
+
+		assert.False(t, actual)
+		assert.NoError(t, err)
+	})
+
+	t.Run("*time.Time", func(t *testing.T) {
+		t.Parallel()
+
+		now := time.Now()
+		m := matcher.IsType[*time.Time]()
+
+		actual, err := m.Match(&now)
+
+		assert.True(t, actual)
+		assert.NoError(t, err)
+
+		actual, err = m.Match(now)
+
+		assert.False(t, actual)
+		assert.NoError(t, err)
+	})
+}
+
+func TestIsType_Expected(t *testing.T) {
+	t.Parallel()
+
+	m := matcher.IsType[bool]()
+
+	expected := `type is bool`
+
+	assert.Equal(t, expected, m.Expected())
+}
+
+func TestSameTypeAs_Match(t *testing.T) {
+	t.Parallel()
+
+	t.Run("bool", func(t *testing.T) {
+		t.Parallel()
+
+		m := matcher.SameTypeAs(true)
+
+		actual, err := m.Match(false)
+
+		assert.True(t, actual)
+		assert.NoError(t, err)
+
+		actual, err = m.Match(1)
+
+		assert.False(t, actual)
+		assert.NoError(t, err)
+	})
+
+	t.Run("*time.Time", func(t *testing.T) {
+		t.Parallel()
+
+		now := time.Now()
+		m := matcher.SameTypeAs(&time.Time{})
+
+		actual, err := m.Match(&now)
+
+		assert.True(t, actual)
+		assert.NoError(t, err)
+
+		actual, err = m.Match(now)
+
+		assert.False(t, actual)
+		assert.NoError(t, err)
+	})
+}
+
+func TestSameTypeAs_Expected(t *testing.T) {
+	t.Parallel()
+
+	m := matcher.SameTypeAs(true)
+
+	expected := `type is bool`
+
+	assert.Equal(t, expected, m.Expected())
+}
+
 func TestLen_Match_NoError(t *testing.T) {
 	t.Parallel()
 
