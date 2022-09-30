@@ -16,6 +16,8 @@ var Any = Func("is anything", func(actual any) (bool, error) {
 })
 
 // Matcher determines if the actual matches the expectation.
+//
+//go:generate mockery --name Matcher --output mock --outpkg mock --filename matcher.go
 type Matcher interface {
 	Match(actual any) (bool, error)
 	Expected() string
