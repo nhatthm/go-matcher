@@ -174,12 +174,12 @@ type funcMatcher struct {
 }
 
 // Match determines if the actual is expected.
-func (f *funcMatcher) Match(actual any) (bool, error) {
+func (f funcMatcher) Match(actual any) (bool, error) {
 	return f.match(actual)
 }
 
 // Expected returns the expectation.
-func (f *funcMatcher) Expected() string {
+func (f funcMatcher) Expected() string {
 	return f.expected
 }
 
@@ -257,7 +257,7 @@ func IsNotEmpty() Matcher {
 
 // Func matches by calling a function.
 func Func(expected string, match func(actual any) (bool, error)) Matcher {
-	return &funcMatcher{expected: expected, match: match}
+	return funcMatcher{expected: expected, match: match}
 }
 
 // Match returns a matcher according to its type.
