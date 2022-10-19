@@ -1,6 +1,7 @@
 package matcher_test
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 	"time"
@@ -17,6 +18,12 @@ func TestAny(t *testing.T) {
 		t.Parallel()
 
 		assert.Equal(t, "is anything", matcher.Any.Expected())
+	})
+
+	t.Run("format", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Equal(t, "<is anything>", fmt.Sprintf("%#v", matcher.Any))
 	})
 
 	testCases := []struct {
@@ -50,6 +57,153 @@ func TestAny(t *testing.T) {
 
 			assert.True(t, matched)
 			assert.NoError(t, err)
+		})
+	}
+}
+
+func TestEqualMatcher_Format(t *testing.T) {
+	t.Parallel()
+
+	type data struct {
+		Name string
+	}
+
+	testCases := []struct {
+		scenario string
+		format   string
+		value    any
+		expected string
+	}{
+		{
+			scenario: "string - %T",
+			format:   "%T",
+			value:    "foobar",
+			expected: "matcher.equalMatcher",
+		},
+		{
+			scenario: "string - %s",
+			format:   "%s",
+			value:    "foobar",
+			expected: "foobar",
+		},
+		{
+			scenario: "string - %+s",
+			format:   "%+s",
+			value:    "foobar",
+			expected: "foobar",
+		},
+		{
+			scenario: "string - %#s",
+			format:   "%#s",
+			value:    "foobar",
+			expected: `"foobar"`,
+		},
+		{
+			scenario: "string - %v",
+			format:   "%v",
+			value:    "foobar",
+			expected: "string(foobar)",
+		},
+		{
+			scenario: "string - %+v",
+			format:   "%+v",
+			value:    "foobar",
+			expected: "string(foobar)",
+		},
+		{
+			scenario: "string - %#v",
+			format:   "%#v",
+			value:    "foobar",
+			expected: `string("foobar")`,
+		},
+		{
+			scenario: "string - %q",
+			format:   "%q",
+			value:    "foobar",
+			expected: `"foobar"`,
+		},
+		{
+			scenario: "string - %+q",
+			format:   "%+q",
+			value:    "foobar",
+			expected: `"foobar"`,
+		},
+		{
+			scenario: "string - %#q",
+			format:   "%#q",
+			value:    "foobar",
+			expected: `string("foobar")`,
+		},
+		{
+			scenario: "struct - %T",
+			format:   "%T",
+			value:    data{Name: "foobar"},
+			expected: "matcher.equalMatcher",
+		},
+		{
+			scenario: "struct - %s",
+			format:   "%s",
+			value:    data{Name: "foobar"},
+			expected: "{foobar}",
+		},
+		{
+			scenario: "struct - %+s",
+			format:   "%+s",
+			value:    data{Name: "foobar"},
+			expected: "{Name:foobar}",
+		},
+		{
+			scenario: "struct - %#s",
+			format:   "%#s",
+			value:    data{Name: "foobar"},
+			expected: `matcher_test.data{Name:"foobar"}`,
+		},
+		{
+			scenario: "struct - %v",
+			format:   "%v",
+			value:    data{Name: "foobar"},
+			expected: "matcher_test.data({foobar})",
+		},
+		{
+			scenario: "struct - %+v",
+			format:   "%+v",
+			value:    data{Name: "foobar"},
+			expected: "matcher_test.data({Name:foobar})",
+		},
+		{
+			scenario: "struct - %#v",
+			format:   "%#v",
+			value:    data{Name: "foobar"},
+			expected: `matcher_test.data{Name:"foobar"}`,
+		},
+		{
+			scenario: "struct - %q",
+			format:   "%q",
+			value:    data{Name: "foobar"},
+			expected: `matcher_test.data({foobar})`,
+		},
+		{
+			scenario: "struct - %+q",
+			format:   "%+q",
+			value:    data{Name: "foobar"},
+			expected: `matcher_test.data({Name:foobar})`,
+		},
+		{
+			scenario: "struct - %#q",
+			format:   "%#q",
+			value:    data{Name: "foobar"},
+			expected: `matcher_test.data{Name:"foobar"}`,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.scenario, func(t *testing.T) {
+			t.Parallel()
+
+			actual := fmt.Sprintf(tc.format, matcher.Equal(tc.value))
+
+			assert.Equal(t, tc.expected, actual)
 		})
 	}
 }
@@ -158,6 +312,73 @@ func TestEqualf_Match(t *testing.T) {
 	}
 }
 
+func TestJsonMatcher_Format(t *testing.T) {
+	t.Parallel()
+
+	const payload = `{"username": "user"}`
+
+	testCases := []struct {
+		scenario string
+		format   string
+		value    string
+		expected string
+	}{
+		{
+			scenario: "type - %T",
+			format:   "%T",
+			value:    payload,
+			expected: "matcher.jsonMatcher",
+		},
+		{
+			scenario: "string - %s",
+			format:   "%s",
+			value:    payload,
+			expected: payload,
+		},
+		{
+			scenario: "string - %+s",
+			format:   "%+s",
+			value:    payload,
+			expected: payload,
+		},
+		{
+			scenario: "string - %#s",
+			format:   "%#s",
+			value:    payload,
+			expected: `"{\"username\": \"user\"}"`,
+		},
+		{
+			scenario: "string - %v",
+			format:   "%v",
+			value:    payload,
+			expected: `string({"username": "user"})`,
+		},
+		{
+			scenario: "string - %+v",
+			format:   "%+v",
+			value:    payload,
+			expected: `string({"username": "user"})`,
+		},
+		{
+			scenario: "string - %#v",
+			format:   "%#v",
+			value:    payload,
+			expected: `string("{\"username\": \"user\"}")`,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.scenario, func(t *testing.T) {
+			t.Parallel()
+
+			actual := fmt.Sprintf(tc.format, matcher.JSON(tc.value))
+
+			assert.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
 func TestJSON_Panic(t *testing.T) {
 	t.Parallel()
 
@@ -252,6 +473,73 @@ func TestJSON_Match_Error(t *testing.T) {
 	assert.EqualError(t, err, `json: unsupported type: chan error`)
 }
 
+func TestRegexMatcher_Format(t *testing.T) {
+	t.Parallel()
+
+	const pattern = `.*`
+
+	testCases := []struct {
+		scenario string
+		format   string
+		value    string
+		expected string
+	}{
+		{
+			scenario: "type - %T",
+			format:   "%T",
+			value:    pattern,
+			expected: "matcher.regexMatcher",
+		},
+		{
+			scenario: "string - %s",
+			format:   "%s",
+			value:    pattern,
+			expected: pattern,
+		},
+		{
+			scenario: "string - %+s",
+			format:   "%+s",
+			value:    pattern,
+			expected: pattern,
+		},
+		{
+			scenario: "string - %#s",
+			format:   "%#s",
+			value:    pattern,
+			expected: `".*"`,
+		},
+		{
+			scenario: "string - %v",
+			format:   "%v",
+			value:    pattern,
+			expected: `*regexp.Regexp(.*)`,
+		},
+		{
+			scenario: "string - %+v",
+			format:   "%+v",
+			value:    pattern,
+			expected: `*regexp.Regexp(.*)`,
+		},
+		{
+			scenario: "string - %#v",
+			format:   "%#v",
+			value:    pattern,
+			expected: `*regexp.Regexp(".*")`,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.scenario, func(t *testing.T) {
+			t.Parallel()
+
+			actual := fmt.Sprintf(tc.format, matcher.Regex(tc.value))
+
+			assert.Equal(t, tc.expected, actual)
+		})
+	}
+}
+
 func TestRegex_Expected(t *testing.T) {
 	t.Parallel()
 
@@ -259,6 +547,17 @@ func TestRegex_Expected(t *testing.T) {
 	expected := ".*"
 
 	assert.Equal(t, expected, m.Expected())
+}
+
+func TestTypeMatcher_Format(t *testing.T) {
+	t.Parallel()
+
+	m := matcher.IsType[string]()
+
+	actual := fmt.Sprintf("%#v", m)
+	expected := "<type is string>"
+
+	assert.Equal(t, expected, actual)
 }
 
 func TestIsType_Match(t *testing.T) {
@@ -437,6 +736,17 @@ func TestLen_Match_Error(t *testing.T) {
 	assert.EqualError(t, err, expected)
 }
 
+func TestLenMatcher_Format(t *testing.T) {
+	t.Parallel()
+
+	m := matcher.Len(10)
+
+	actual := fmt.Sprintf("%#v", m)
+	expected := "<len is 10>"
+
+	assert.Equal(t, expected, actual)
+}
+
 func TestLen_Expected(t *testing.T) {
 	t.Parallel()
 
@@ -444,6 +754,15 @@ func TestLen_Expected(t *testing.T) {
 	expected := "len is 5"
 
 	assert.Equal(t, expected, m.Expected())
+}
+
+func TestEmptyMatcher_Format(t *testing.T) {
+	t.Parallel()
+
+	actual := fmt.Sprintf("%#v", matcher.IsEmpty())
+	expected := "<is empty>"
+
+	assert.Equal(t, expected, actual)
 }
 
 func TestEmpty_Match(t *testing.T) {
@@ -485,6 +804,15 @@ func TestEmpty_Expected(t *testing.T) {
 	expected := "is empty"
 
 	assert.Equal(t, expected, m.Expected())
+}
+
+func TestNotEmptyMatcher_Format(t *testing.T) {
+	t.Parallel()
+
+	actual := fmt.Sprintf("%#v", matcher.IsNotEmpty())
+	expected := "<is not empty>"
+
+	assert.Equal(t, expected, actual)
 }
 
 func TestNotEmpty_Match(t *testing.T) {
