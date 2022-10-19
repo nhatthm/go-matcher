@@ -8,6 +8,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/swaggest/assertjson"
+
+	"go.nhat.io/matcher/v3/format"
 )
 
 // Any returns a matcher that matches any value.
@@ -44,6 +46,10 @@ func (m equalMatcher) Match(actual any) (bool, error) {
 	return assert.ObjectsAreEqual(m.expected, actual), nil
 }
 
+func (m equalMatcher) Format(s fmt.State, r rune) {
+	format.Format(s, r, m.expected)
+}
+
 var _ Matcher = (*jsonMatcher)(nil)
 
 // jsonMatcher matches by json with <ignore-diff> support.
@@ -64,6 +70,10 @@ func (m jsonMatcher) Match(actual any) (bool, error) {
 	}
 
 	return assertjson.FailNotEqual([]byte(m.expected), actualBytes) == nil, nil
+}
+
+func (m jsonMatcher) Format(s fmt.State, r rune) {
+	format.Format(s, r, m.expected)
 }
 
 var _ Matcher = (*regexMatcher)(nil)
@@ -87,6 +97,10 @@ func (m regexMatcher) Match(actual any) (bool, error) {
 	return false, nil
 }
 
+func (m regexMatcher) Format(s fmt.State, r rune) {
+	format.Format(s, r, m.regexp)
+}
+
 var _ Matcher = (*typeMatcher)(nil)
 
 // typeMatcher is a .typeMatcher.
@@ -94,12 +108,16 @@ type typeMatcher struct {
 	typeOf reflect.Type
 }
 
-func (t typeMatcher) Match(actual any) (bool, error) {
-	return reflect.DeepEqual(t.typeOf, reflect.TypeOf(actual)), nil
+func (m typeMatcher) Match(actual any) (bool, error) {
+	return reflect.DeepEqual(m.typeOf, reflect.TypeOf(actual)), nil
 }
 
-func (t typeMatcher) Expected() string {
-	return fmt.Sprintf("type is %s", t.typeOf.String())
+func (m typeMatcher) Expected() string {
+	return fmt.Sprintf("type is %s", m.typeOf.String())
+}
+
+func (m typeMatcher) Format(s fmt.State, _ rune) {
+	_, _ = fmt.Fprintf(s, "<type is %s>", m.typeOf.String())
 }
 
 var _ Matcher = (*lenMatcher)(nil)
@@ -135,6 +153,10 @@ func (m lenMatcher) Expected() string {
 	return fmt.Sprintf("len is %d", m.expected)
 }
 
+func (m lenMatcher) Format(s fmt.State, _ rune) {
+	_, _ = fmt.Fprintf(s, "<len is %d>", m.expected)
+}
+
 var _ Matcher = (*emptyMatcher)(nil)
 
 // emptyMatcher checks whether the value is empty.
@@ -150,6 +172,10 @@ func (emptyMatcher) Expected() string {
 	return "is empty"
 }
 
+func (emptyMatcher) Format(s fmt.State, _ rune) {
+	_, _ = s.Write([]byte("<is empty>"))
+}
+
 var _ Matcher = (*notEmptyMatcher)(nil)
 
 // notEmptyMatcher checks whether the value is not empty.
@@ -163,6 +189,10 @@ func (notEmptyMatcher) Match(actual any) (bool, error) {
 // Expected returns the expectation.
 func (notEmptyMatcher) Expected() string {
 	return "is not empty"
+}
+
+func (notEmptyMatcher) Format(s fmt.State, _ rune) {
+	_, _ = s.Write([]byte("<is not empty>"))
 }
 
 var _ Matcher = (*funcMatcher)(nil)
@@ -181,6 +211,10 @@ func (f funcMatcher) Match(actual any) (bool, error) {
 // Expected returns the expectation.
 func (f funcMatcher) Expected() string {
 	return f.expected
+}
+
+func (f funcMatcher) Format(s fmt.State, _ rune) {
+	_, _ = fmt.Fprintf(s, "<%s>", f.expected)
 }
 
 var _ Matcher = (*Callback)(nil)

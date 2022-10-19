@@ -27,6 +27,7 @@ linters-settings:
 linters:
   enable-all: true
   disable:
+    - dupword
     - exhaustivestruct
     - exhaustruct
     - forbidigo
