@@ -3,7 +3,7 @@ module go.nhat.io/matcher/v3
 go 1.18
 
 require (
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.1
 	github.com/swaggest/assertjson v1.7.0
 )
 
@@ -17,7 +17,7 @@ require (
 	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
-	github.com/stretchr/objx v0.4.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/yudai/gojsondiff v1.0.0 // indirect
 	github.com/yudai/golcs v0.0.0-20170316035057-ecda9a501e82 // indirect
 	golang.org/x/net v0.0.0-20220516155154-20f960328961 // indirect
