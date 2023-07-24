@@ -4,13 +4,13 @@ go 1.18
 
 require (
 	github.com/stretchr/testify v1.8.4
-	github.com/swaggest/assertjson v1.8.1
+	github.com/swaggest/assertjson v1.9.0
 )
 
 require (
 	github.com/bool64/shared v0.1.5 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/iancoleman/orderedmap v0.2.0 // indirect
+	github.com/iancoleman/orderedmap v0.3.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
