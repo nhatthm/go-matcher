@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"go.nhat.io/matcher/v3"
 )
@@ -56,7 +57,7 @@ func TestAny(t *testing.T) {
 			matched, err := matcher.Any.Match(tc.actual)
 
 			assert.True(t, matched)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 	}
 }
@@ -268,7 +269,7 @@ func TestEqual_Match(t *testing.T) {
 			result, err := m.Match(tc.actual)
 
 			assert.Equal(t, tc.expected, result)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 	}
 }
@@ -307,7 +308,7 @@ func TestEqualf_Match(t *testing.T) {
 			result, err := m.Match(tc.actual)
 
 			assert.Equal(t, tc.expected, result)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 	}
 }
@@ -458,7 +459,7 @@ func TestJSON_Match(t *testing.T) {
 			result, err := m.Match(tc.actual)
 
 			assert.Equal(t, tc.expected, result)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 	}
 }
@@ -470,7 +471,7 @@ func TestJSON_Match_Error(t *testing.T) {
 	result, err := m.Match(make(chan error))
 
 	assert.False(t, result)
-	assert.EqualError(t, err, `json: unsupported type: chan error`)
+	require.EqualError(t, err, `json: unsupported type: chan error`)
 }
 
 func TestRegexMatcher_Format(t *testing.T) {
@@ -571,12 +572,12 @@ func TestIsType_Match(t *testing.T) {
 		actual, err := m.Match(true)
 
 		assert.True(t, actual)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		actual, err = m.Match(1)
 
 		assert.False(t, actual)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("*time.Time", func(t *testing.T) {
@@ -588,12 +589,12 @@ func TestIsType_Match(t *testing.T) {
 		actual, err := m.Match(&now)
 
 		assert.True(t, actual)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		actual, err = m.Match(now)
 
 		assert.False(t, actual)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 }
 
@@ -618,12 +619,12 @@ func TestSameTypeAs_Match(t *testing.T) {
 		actual, err := m.Match(false)
 
 		assert.True(t, actual)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		actual, err = m.Match(1)
 
 		assert.False(t, actual)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("*time.Time", func(t *testing.T) {
@@ -635,12 +636,12 @@ func TestSameTypeAs_Match(t *testing.T) {
 		actual, err := m.Match(&now)
 
 		assert.True(t, actual)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		actual, err = m.Match(now)
 
 		assert.False(t, actual)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 }
 
@@ -717,7 +718,7 @@ func TestLen_Match_NoError(t *testing.T) {
 			m := matcher.Len(3)
 			actual, err := m.Match(tc.value)
 
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, tc.expected, actual)
 		})
 	}
@@ -732,8 +733,8 @@ func TestLen_Match_Error(t *testing.T) {
 	expected := `reflect: call of reflect.Value.Len on int Value`
 
 	assert.False(t, actual)
-	assert.Error(t, err)
-	assert.EqualError(t, err, expected)
+	require.Error(t, err)
+	require.EqualError(t, err, expected)
 }
 
 func TestLenMatcher_Format(t *testing.T) {
@@ -791,7 +792,7 @@ func TestEmpty_Match(t *testing.T) {
 			m := matcher.IsEmpty()
 			actual, err := m.Match(tc.value)
 
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, tc.expected, actual)
 		})
 	}
@@ -841,7 +842,7 @@ func TestNotEmpty_Match(t *testing.T) {
 			m := matcher.IsNotEmpty()
 			actual, err := m.Match(tc.value)
 
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, tc.expected, actual)
 		})
 	}
@@ -897,7 +898,7 @@ func TestRegex_Match(t *testing.T) {
 			result, err := tc.matcher.Match(tc.actual)
 
 			assert.Equal(t, tc.expected, result)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 	}
 }
@@ -981,10 +982,10 @@ func TestMatch_Callback(t *testing.T) {
 	result, err := m.Match("expected")
 
 	assert.True(t, result)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	result, err = m.Match("mismatched")
 
 	assert.False(t, result)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }

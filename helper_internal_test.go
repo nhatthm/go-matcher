@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_strVal(t *testing.T) {
@@ -89,9 +90,9 @@ func Test_jsonVal(t *testing.T) {
 			assert.Equal(t, tc.expectedResult, result)
 
 			if tc.expectedError == "" {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			} else {
-				assert.EqualError(t, err, tc.expectedError)
+				require.EqualError(t, err, tc.expectedError)
 			}
 		})
 	}
