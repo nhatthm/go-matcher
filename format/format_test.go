@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"go.nhat.io/matcher/v3/format"
 )
@@ -18,7 +19,7 @@ func TestFprintf(t *testing.T) {
 	buf := new(bytes.Buffer)
 	_, err := format.Fprintf(buf, "%#v", "foobar")
 
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	expected := `string("foobar")`
 
