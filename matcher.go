@@ -13,7 +13,7 @@ import (
 )
 
 // Any returns a matcher that matches any value.
-var Any = Func("is anything", func(actual any) (bool, error) {
+var Any = Func("is anything", func(any) (bool, error) {
 	return true, nil
 })
 
@@ -113,11 +113,11 @@ func (m typeMatcher) Match(actual any) (bool, error) {
 }
 
 func (m typeMatcher) Expected() string {
-	return fmt.Sprintf("type is %s", m.typeOf.String())
+	return "type is " + m.typeOf.String()
 }
 
 func (m typeMatcher) Format(s fmt.State, _ rune) {
-	_, _ = fmt.Fprintf(s, "<type is %s>", m.typeOf.String())
+	_, _ = fmt.Fprintf(s, "<type is %s>", m.typeOf.String()) //nolint: errcheck
 }
 
 var _ Matcher = (*lenMatcher)(nil)
@@ -154,7 +154,7 @@ func (m lenMatcher) Expected() string {
 }
 
 func (m lenMatcher) Format(s fmt.State, _ rune) {
-	_, _ = fmt.Fprintf(s, "<len is %d>", m.expected)
+	_, _ = fmt.Fprintf(s, "<len is %d>", m.expected) //nolint: errcheck
 }
 
 var _ Matcher = (*emptyMatcher)(nil)
@@ -173,7 +173,7 @@ func (emptyMatcher) Expected() string {
 }
 
 func (emptyMatcher) Format(s fmt.State, _ rune) {
-	_, _ = s.Write([]byte("<is empty>"))
+	_, _ = s.Write([]byte("<is empty>")) //nolint: errcheck
 }
 
 var _ Matcher = (*notEmptyMatcher)(nil)
@@ -192,7 +192,7 @@ func (notEmptyMatcher) Expected() string {
 }
 
 func (notEmptyMatcher) Format(s fmt.State, _ rune) {
-	_, _ = s.Write([]byte("<is not empty>"))
+	_, _ = s.Write([]byte("<is not empty>")) //nolint: errcheck
 }
 
 var _ Matcher = (*funcMatcher)(nil)
@@ -214,7 +214,7 @@ func (f funcMatcher) Expected() string {
 }
 
 func (f funcMatcher) Format(s fmt.State, _ rune) {
-	_, _ = fmt.Fprintf(s, "<%s>", f.expected)
+	_, _ = fmt.Fprintf(s, "<%s>", f.expected) //nolint: errcheck
 }
 
 var _ Matcher = (*Callback)(nil)

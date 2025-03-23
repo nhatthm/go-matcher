@@ -11,7 +11,7 @@ The package provides a matcher interface to match a given value of any types.
 
 ## Prerequisites
 
-- `Go >= 1.18`
+- `Go >= 1.23`
 
 ## Install
 

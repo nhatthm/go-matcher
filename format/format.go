@@ -59,7 +59,7 @@ func Format(s fmt.State, r rune, value any) {
 		formatValueWithType(s, hasPlus, hasSharp, value, converted)
 
 	case 'q':
-		formatString(s, hasSharp, value, converted.(string))
+		formatString(s, hasSharp, value, converted.(string)) //nolint: errcheck
 	}
 }
 
