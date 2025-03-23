@@ -41,7 +41,6 @@ func TestSprintf_String(t *testing.T) {
 	})
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.scenario, func(t *testing.T) {
 			t.Parallel()
 
@@ -69,7 +68,6 @@ func TestSprintf_String_Alias(t *testing.T) {
 	})
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.scenario, func(t *testing.T) {
 			t.Parallel()
 
@@ -95,7 +93,6 @@ func TestSprintf_String_Slice(t *testing.T) {
 	})
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.scenario, func(t *testing.T) {
 			t.Parallel()
 
@@ -123,7 +120,6 @@ func TestSprintf_String_SliceAlias(t *testing.T) {
 	})
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.scenario, func(t *testing.T) {
 			t.Parallel()
 
@@ -149,7 +145,6 @@ func TestSprintf_Byte_Slice(t *testing.T) {
 	})
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.scenario, func(t *testing.T) {
 			t.Parallel()
 
@@ -177,7 +172,6 @@ func TestSprintf_Byte_SliceAlias(t *testing.T) {
 	})
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.scenario, func(t *testing.T) {
 			t.Parallel()
 
@@ -203,7 +197,6 @@ func TestSprintf_Int(t *testing.T) {
 	})
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.scenario, func(t *testing.T) {
 			t.Parallel()
 
@@ -231,7 +224,6 @@ func TestSprintf_Int_Alias(t *testing.T) {
 	})
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.scenario, func(t *testing.T) {
 			t.Parallel()
 
@@ -257,7 +249,6 @@ func TestSprintf_Int_Slice(t *testing.T) {
 	})
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.scenario, func(t *testing.T) {
 			t.Parallel()
 
@@ -285,7 +276,6 @@ func TestSprintf_Int_SliceAlias(t *testing.T) {
 	})
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.scenario, func(t *testing.T) {
 			t.Parallel()
 
@@ -313,7 +303,6 @@ func TestSprintf_JSONRawMessage(t *testing.T) {
 	})
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.scenario, func(t *testing.T) {
 			t.Parallel()
 
@@ -339,7 +328,6 @@ func TestSprintf_Regexp(t *testing.T) {
 	})
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.scenario, func(t *testing.T) {
 			t.Parallel()
 

@@ -1,0 +1,12 @@
+dry-run: false
+with-expecter: false
+mockname: "{{.InterfaceName}}"
+filename: "{{ .InterfaceName | snakecase }}.go"
+dir: "{{.InterfaceDir}}/mock"
+outpkg: mock
+packages:
+  go.nhat.io/matcher/v3:
+    config:
+      dir: "mock"
+      include-regex: "Matcher"
+      outpkg: mock
