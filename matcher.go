@@ -263,6 +263,28 @@ func Regex[T ~string | *regexp.Regexp | regexp.Regexp](regexp T) Matcher {
 	return regexMatcher{regexp: regexpVal(regexp)}
 }
 
+// Wildcard creates a Matcher that supports patterns with '*' wildcards by converting them into equivalent regex expressions.
+// For example, the pattern "foo*bar" will match any string that starts with "foo" and ends with "bar".
+func Wildcard[T ~string](pattern T) Matcher {
+	parts := strings.Split(string(pattern), "*")
+
+	if len(parts) == 1 {
+		return Equal(pattern)
+	}
+
+	var patternBuilder strings.Builder
+
+	for i, part := range parts {
+		if i > 0 {
+			patternBuilder.WriteString(".*")
+		}
+
+		patternBuilder.WriteString(regexp.QuoteMeta(part))
+	}
+
+	return Regex(regexp.MustCompile("^" + patternBuilder.String() + "$"))
+}
+
 // IsType matches two types.
 func IsType[T any]() Matcher {
 	var t *T
