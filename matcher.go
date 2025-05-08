@@ -263,7 +263,8 @@ func Regex[T ~string | *regexp.Regexp | regexp.Regexp](regexp T) Matcher {
 	return regexMatcher{regexp: regexpVal(regexp)}
 }
 
-// Wildcard matches two strings by using equal or regex with wildcard support.
+// Wildcard creates a Matcher that supports patterns with '*' wildcards by converting them into equivalent regex expressions.
+// For example, the pattern "foo*bar" will match any string that starts with "foo" and ends with "bar".
 func Wildcard[T ~string](pattern T) Matcher {
 	parts := strings.Split(string(pattern), "*")
 
