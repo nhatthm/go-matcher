@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"strings"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/swaggest/assertjson"
@@ -135,7 +136,7 @@ func (m lenMatcher) Match(actual any) (_ bool, err error) {
 
 	defer func() {
 		if r := recover(); r != nil {
-			err = errors.New(recovered(r)) // nolint: goerr113
+			err = errors.New(recovered(r)) //nolint: err113
 		}
 	}()
 
@@ -311,4 +312,112 @@ func Match(v any) Matcher {
 	}
 
 	return Equal(v)
+}
+
+const (
+	logicalOperatorAnd = "and"
+	logicalOperatorOr  = "or"
+)
+
+type logicalOperator string
+
+type binaryLogicalMatcher struct {
+	matchers []Matcher
+	operator logicalOperator
+	nested   bool
+}
+
+func (m *binaryLogicalMatcher) Expected() string {
+	expected := make([]string, len(m.matchers))
+
+	for i, matcher := range m.matchers {
+		expected[i] = matcher.Expected()
+	}
+
+	if len(m.matchers) == 1 {
+		return expected[0]
+	}
+
+	result := strings.Join(expected, " "+string(m.operator)+" ")
+
+	if m.nested {
+		result = "(" + result + ")"
+	}
+
+	return result
+}
+
+type orLogicalMatcher struct {
+	*binaryLogicalMatcher
+}
+
+func (m *orLogicalMatcher) Match(actual any) (bool, error) {
+	for _, matcher := range m.matchers {
+		if ok, err := matcher.Match(actual); err != nil {
+			return false, err
+		} else if ok {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+// Or returns a matcher that matches if any of the matchers match.
+func Or(matchers ...any) Matcher {
+	return &orLogicalMatcher{
+		binaryLogicalMatcher: &binaryLogicalMatcher{
+			matchers: makeNestableMatchers(matchers...),
+			operator: logicalOperatorOr,
+		},
+	}
+}
+
+type andLogicalMatcher struct {
+	*binaryLogicalMatcher
+}
+
+func (m *andLogicalMatcher) Match(actual any) (bool, error) {
+	for _, matcher := range m.matchers {
+		if ok, err := matcher.Match(actual); err != nil {
+			return false, err
+		} else if !ok {
+			return false, nil
+		}
+	}
+
+	return true, nil
+}
+
+// And returns a matcher that matches if all of the matchers match.
+func And(matchers ...any) Matcher {
+	return &andLogicalMatcher{
+		binaryLogicalMatcher: &binaryLogicalMatcher{
+			matchers: makeNestableMatchers(matchers...),
+			operator: logicalOperatorAnd,
+		},
+	}
+}
+
+func makeNestableMatchers(v ...any) []Matcher {
+	matchers := make([]Matcher, len(v))
+
+	for i, matcher := range v {
+		matchers[i] = makeNestedMatcher(matcher)
+	}
+
+	return matchers
+}
+
+func makeNestedMatcher(v any) Matcher {
+	m := Match(v)
+
+	switch m := m.(type) {
+	case *orLogicalMatcher:
+		m.nested = true
+	case *andLogicalMatcher:
+		m.nested = true
+	}
+
+	return m
 }

@@ -975,3 +975,75 @@ func TestMatch_Callback(t *testing.T) {
 	assert.False(t, result)
 	require.NoError(t, err)
 }
+
+func TestLogicalOr(t *testing.T) {
+	t.Parallel()
+
+	m := matcher.Or("foo", matcher.Or(matcher.Regex("bar"), matcher.Len(5)))
+
+	result, err := m.Match("foo")
+	assert.True(t, result)
+	require.NoError(t, err)
+
+	result, err = m.Match("bar")
+	assert.True(t, result)
+	require.NoError(t, err)
+
+	result, err = m.Match("baz")
+	assert.False(t, result)
+	require.NoError(t, err)
+
+	result, err = m.Match("hello")
+	assert.True(t, result)
+	require.NoError(t, err)
+
+	actualMessage := m.Expected()
+	expectedMessage := "foo or (bar or len is 5)"
+
+	assert.Equal(t, expectedMessage, actualMessage)
+}
+
+func TestLogicalAny(t *testing.T) {
+	t.Parallel()
+
+	m := matcher.And(matcher.Regex("^bar"), matcher.Or(matcher.Len(4), matcher.Len(5)))
+
+	result, err := m.Match("foo")
+	assert.False(t, result)
+	require.NoError(t, err)
+
+	result, err = m.Match("bar")
+	assert.False(t, result)
+	require.NoError(t, err)
+
+	result, err = m.Match("barry")
+	assert.True(t, result)
+	require.NoError(t, err)
+
+	result, err = m.Match("bare")
+	assert.True(t, result)
+	require.NoError(t, err)
+
+	actualMessage := m.Expected()
+	expectedMessage := "^bar and (len is 4 or len is 5)"
+
+	assert.Equal(t, expectedMessage, actualMessage)
+}
+
+func TestLogical_Expected(t *testing.T) {
+	t.Parallel()
+
+	sub1 := matcher.Equal("foo")
+	sub2 := matcher.Regex("^bar")
+	sub3 := matcher.And(sub2, matcher.Len(5))
+
+	actual1 := matcher.Or(sub1, sub3)
+	expected1 := "foo or (^bar and len is 5)"
+
+	assert.Equal(t, expected1, actual1.Expected()) //nolint: testifylint
+
+	actual2 := matcher.Or(sub1, sub2)
+	expected2 := "foo or ^bar"
+
+	assert.Equal(t, expected2, actual2.Expected()) //nolint: testifylint
+}
