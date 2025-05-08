@@ -541,6 +541,95 @@ func TestRegex_Expected(t *testing.T) {
 	assert.Equal(t, expected, m.Expected())
 }
 
+func TestWildcard_Match(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		scenario string
+		pattern  string
+		value    string
+		expected bool
+	}{
+		{
+			scenario: "exact match",
+			pattern:  "foo",
+			value:    "foo",
+			expected: true,
+		},
+		{
+			scenario: "not exact match",
+			pattern:  "foo",
+			value:    "bar",
+			expected: false,
+		},
+		{
+			scenario: "wildcard match",
+			pattern:  "foo*",
+			value:    "foobar",
+			expected: true,
+		},
+		{
+			scenario: "wildcard match with prefix",
+			pattern:  "*bar",
+			value:    "foobar",
+			expected: true,
+		},
+		{
+			scenario: "wildcard match with prefix and suffix",
+			pattern:  "*foo*",
+			value:    "foobar",
+			expected: true,
+		},
+		{
+			scenario: "wildcard match with prefix and suffix and middle",
+			pattern:  "*fo*ar*",
+			value:    "foobar",
+			expected: true,
+		},
+		{
+			scenario: "not wildcard match",
+			pattern:  "*foo*",
+			value:    "fobar",
+			expected: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.scenario, func(t *testing.T) {
+			t.Parallel()
+
+			m := matcher.Wildcard(tc.pattern)
+			actual, err := m.Match(tc.value)
+
+			assert.Equal(t, tc.expected, actual)
+			require.NoError(t, err)
+		})
+	}
+}
+
+func TestWildcard_Expected(t *testing.T) {
+	t.Parallel()
+
+	m1 := matcher.Wildcard("foo*")
+	expected1 := "^foo.*$"
+
+	assert.Equal(t, expected1, m1.Expected()) //nolint: testifylint
+
+	m2 := matcher.Wildcard("*foo*")
+	expected2 := "^.*foo.*$"
+
+	assert.Equal(t, expected2, m2.Expected()) //nolint: testifylint
+
+	m3 := matcher.Wildcard("*foo*bar*")
+	expected3 := "^.*foo.*bar.*$"
+	assert.Equal(t, expected3, m3.Expected()) //nolint: testifylint
+
+	m4 := matcher.Wildcard("foobar")
+	expected4 := "foobar"
+
+	assert.Equal(t, expected4, m4.Expected()) //nolint: testifylint
+}
+
 func TestTypeMatcher_Format(t *testing.T) {
 	t.Parallel()
 
