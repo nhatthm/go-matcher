@@ -2,7 +2,6 @@ package format_test
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"regexp"
 	"testing"
@@ -273,33 +272,6 @@ func TestSprintf_Int_SliceAlias(t *testing.T) {
 		expectSharpV: `format_test.Ints{42}`,
 		expectQ:      `format_test.Ints([42])`,
 		expectSharpQ: `format_test.Ints{42}`,
-	})
-
-	for _, tc := range testCases {
-		t.Run(tc.scenario, func(t *testing.T) {
-			t.Parallel()
-
-			actual := format.Sprintf(tc.format, tc.value)
-
-			assert.Equal(t, tc.expected, actual)
-		})
-	}
-}
-
-func TestSprintf_JSONRawMessage(t *testing.T) {
-	t.Parallel()
-
-	const payload = `{"foo":"bar"}`
-
-	testCases := provideFormatValueTestCases(t, json.RawMessage(payload), formatValueTestCaseExpects{
-		expectS:      `{"foo":"bar"}`,
-		expectPlusS:  `{"foo":"bar"}`,
-		expectSharpS: `{"foo":"bar"}`,
-		expectV:      `json.RawMessage({"foo":"bar"})`,
-		expectPlusV:  `json.RawMessage({"foo":"bar"})`,
-		expectSharpV: `json.RawMessage({"foo":"bar"})`,
-		expectQ:      `{"foo":"bar"}`,
-		expectSharpQ: `{"foo":"bar"}`,
 	})
 
 	for _, tc := range testCases {

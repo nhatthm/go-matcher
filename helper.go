@@ -58,7 +58,7 @@ func isEmpty(v any) bool {
 	case reflect.Array, reflect.Chan, reflect.Map, reflect.Slice:
 		return val.Len() == 0
 
-	case reflect.Ptr:
+	case reflect.Pointer:
 		if val.IsNil() {
 			return true
 		}
