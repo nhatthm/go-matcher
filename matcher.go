@@ -142,7 +142,7 @@ func (m lenMatcher) Match(actual any) (_ bool, err error) {
 
 	val := reflect.ValueOf(actual)
 
-	if val.Type().Kind() == reflect.Ptr {
+	if val.Type().Kind() == reflect.Pointer {
 		val = val.Elem()
 	}
 
