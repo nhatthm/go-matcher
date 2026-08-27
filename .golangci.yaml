@@ -1,18 +1,22 @@
 version: "2"
 run:
   tests: true
+  allow-parallel-runners: true
 linters:
   default: all
   disable:
     - depguard
     - dupword
     - exhaustruct
+    - exhaustruct_v5
     - forbidigo
     - forcetypeassert
     - gochecknoglobals
+    - gomodguard
     - ireturn
     - lll
     - mnd
+    - noinlineerr
     - nolintlint
     - nonamedreturns
     - paralleltest
@@ -20,6 +24,7 @@ linters:
     - testpackage
     - varnamelen
     - wrapcheck
+    - wsl
   settings:
     dupl:
       threshold: 100
