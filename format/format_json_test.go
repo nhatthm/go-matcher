@@ -3,9 +3,8 @@
 package format_test
 
 import (
-	"testing"
-
 	"encoding/json/jsontext"
+	"testing"
 
 	"github.com/stretchr/testify/assert"
 
