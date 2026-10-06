@@ -2,6 +2,9 @@ structname: "{{.InterfaceName}}"
 filename: "{{ .InterfaceName | snakecase }}.go"
 dir: "{{.InterfaceDir}}/mock"
 pkgname: mock
+template: "https://raw.githubusercontent.com/nhatthm/mockery-template/0.5.1/templates/testify-mocker.templ"
+template-data:
+  unroll-variadic: true
 packages:
   go.nhat.io/matcher/v3:
     config:

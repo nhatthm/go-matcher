@@ -1,7 +1,7 @@
 MODULE_NAME = matcher
 
-GOLANGCI_LINT_VERSION ?= v2.13.0
-MOCKERY_VERSION ?= v3.7.4
+GOLANGCI_LINT_VERSION ?= v2.14.0
+MOCKERY_VERSION ?= v3.8.0
 
 GO ?= go
 GOLANGCI_LINT ?= $(shell go env GOPATH)/bin/golangci-lint-$(GOLANGCI_LINT_VERSION)
@@ -64,7 +64,7 @@ test-unit:
 #	$(Q)$(GO) test ./features/... -gcflags=-l -coverprofile=features.coverprofile -coverpkg ./... -race --godog
 
 .PHONY: gen
-gen: $(MOCKERY)
+gen: gen-mocks
 
 .PHONY: gen-mocks
 gen-mocks: $(MOCKERY)
